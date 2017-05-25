@@ -124,23 +124,65 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
     else:
         print("Out of time!")
         states = old_best_state[:]
-
     print("Flip Number", num_of_flips)
     return calculate_system_energy(states, weights, bias)
 
+def run_simulation_1_update(states, weights, bias, counter, local, noise_level):
+    """Simulating with a specified noise level that decreases with counter.
+    Every 10 counts, choose the largest local field and switch its state"""
+    c = counter
+    size = len(states) - 1
+    while c != 0:
+        c -= 1
+        if c % 100 == 0:
+            # flip largest local field
+            #print(calculate_system_energy(states, weights, bias))
+            min_local_index = local.index(min(local))
+            #print("min: ", local[min_local_index])
+            if states[min_local_index] == 1:
+                states[min_local_index] = 0
+                update_local_field(states, weights, local, min_local_index)
 
-def test_basic(states, weights, bias, counter, local, times):
+            #print(calculate_system_energy(states, weights, bias))
+            max_local_index = local.index(max(local))
+            if states[max_local_index] == 0:
+                states[max_local_index] = 1
+                update_local_field(states, weights, local, max_local_index)
+
+            #print(calculate_system_energy(states, weights, bias))
+            continue
+
+        index = rnd.randint(0, size)
+        testing_level = ((rnd.random() - 0.5) / noise_level) * (c / counter)
+        # testing_level centered around 0 with some noise to allow hill climbing
+        if local[index] < testing_level and states[index] == 1:
+            #print(local[index])
+            states[index] = 0
+            update_local_field(states, weights, local, index)
+        elif local[index] > testing_level and states[index] == 0:
+            states[index] = 1
+            update_local_field(states, weights, local, index)
+    return calculate_system_energy(states, weights, bias)
+
+
+def test_basic(args, function):
     """Runs basic test "times" amount of times and prints output min, stdev and mode (if exists)"""
     outputs = []
+    # states, weights, bias, counter, local, times
+    weights = args[1]
+    bias = args[2]
+    counter = args[3]
+    times = args[5]
     while times != 0:
         times -= 1
-        tstates = states[:]
-        tlocal = local[:]
-        output = run_simulation_basic(tstates, weights, bias, counter, tlocal)
+        tstates = args[0][:]
+        tlocal = args[4][:]
+        output = function(tstates, weights, bias, counter, tlocal)
         outputs.append(output)
-    print("Results for basic: ")
+    print("Results: ")
     # print(outputs)
     print("min: ", round(min(outputs), 1), "stddev: ", round(statistics.stdev(outputs), 1))
+    print("avg: ", round(statistics.median(outputs)))
     try:
         print("mode: ", statistics.mode(outputs))
     except statistics.StatisticsError:
@@ -148,18 +190,25 @@ def test_basic(states, weights, bias, counter, local, times):
     return
 
 
-def test_theirs(states, weights, bias, counter, local, noise, times):
-    """Runs theirs test (noise) "times" amount of times and prints output min, stdev and mode (if exists)"""
+def test_multiple(args, function):
+    """Runs theirs/new test (noise) "times" amount of times and prints output min, stdev and mode (if exists)"""
     outputs = []
+    # states, weights, bias, counter, local, noise, times
+    weights = args[1]
+    bias = args[2]
+    counter = args[3]
+    noise = args[5]
+    times = args[6]
     while times != 0:
         times -= 1
-        tstates = states[:]
-        tlocal = local[:]
-        output = run_simulation_theirs(tstates, weights, bias, counter, tlocal, noise)
+        tstates = args[0][:]
+        tlocal = args[4][:]
+        output = function(tstates, weights, bias, counter, tlocal, noise)
         outputs.append(output)
-    print("Results for theirs: ")
+    print("Results: ")
     # print(outputs)
     print("min: ", round(min(outputs), 1), "stddev: ", round(statistics.stdev(outputs), 1))
+    print("avg: ", round(statistics.median(outputs)))
     try:
         print("mode: ", statistics.mode(outputs))
     except statistics.StatisticsError:

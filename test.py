@@ -12,7 +12,7 @@ for index, biasval in enumerate(bias):
     bias[index] = -biasval  # flip bias values as per behraz
 symmetrize(weights)
 arraysize = len(bias)
-print(arraysize)
+print("Array size: ", arraysize)
 states = [1 for i in range(arraysize)]
 local = generate_local_field(states, weights, bias)
 
@@ -29,26 +29,44 @@ local = generate_local_field(states,weights,bias)
 print("here")
 """
 
-counter = arraysize ** 2 #number of iterations
-noise = 1 #higher value means less noise
-times = 2 # number of times test is run
+counter = 100000 #number of iterations
+noise = 0.5 #higher value means less noise
+times = 100 # number of times test is run
 print("Ready to start")
 
+
+
+
+
+print("Basic test: ")
+args = [states, weights, bias, counter, local, times]
 start = time.time()
-test_basic(states, weights, bias, counter, local, times)
+test_basic(args, run_simulation_basic)
 diff = time.time() - start
 print("Basic time: ", diff)
+print()
 
+
+args = [states, weights, bias, counter, local, noise, times]
+
+print("Noise (Theirs) test: ")
 start = time.time()
-test_theirs(states, weights, bias, counter, local, noise, times)
+test_multiple(args, run_simulation_theirs)
 diff = time.time() - start
 print("Theirs time: ", diff)
+print()
 
+print("New test: ")
+start = time.time()
+test_multiple(args, run_simulation_1_update)
+diff = time.time() - start
+print("New time: ", diff)
+'''
 start = time.time()
 print(run_simulation_flip(states, weights, bias, counter, local, 10, 150, 25))
 diff = time.time() - start
 print("Flip time: ", diff)
-
+'''
 # 4 states
 # s = [0,0,0,0]
 # w = [[0,2,3,-1],[2,0,6,3],[3,6,0,4],[-1,3,4,0]]
