@@ -65,7 +65,7 @@ def run_simulation_theirs(states, weights, bias, counter, local, noise_level):
     while c != 0:
         c -= 1
         index = rnd.randint(0, size)
-        testing_level = ((rnd.random() - 0.5) / noise_level) * (c / counter)
+        testing_level = ((rnd.random() - 0.5)*1000 / noise_level) * (c / counter)
         # testing_level centered around 0 with some noise to allow hill climbing
         if local[index] < testing_level and states[index] == 1:
             states[index] = 0
@@ -214,3 +214,4 @@ def test_multiple(args, function):
     except statistics.StatisticsError:
         print("No common mode")
     return
+
