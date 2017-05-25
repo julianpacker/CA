@@ -4,17 +4,92 @@ import time
 from simulation import *
 from generation import *
 
-# inputs and test
-# from file
-weights = matrix_from_file("w2.txt")
-bias = list_from_file("f2.txt")
+weights = matrix_from_file("w_5_1.txt")
+bias = list_from_file("lf_5_1.txt")
 for index, biasval in enumerate(bias):
     bias[index] = -biasval  # flip bias values as per behraz
 symmetrize(weights)
 arraysize = len(bias)
+
+
+print(arraysize)
+
+print("Flipper")
+
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_flip(states, weights, bias, 100000000, local, 10, 25, 5))
+print("\n\n")
+states = [0 for i in range(arraysize)]
+
 print("Array size: ", arraysize)
 states = [1 for i in range(arraysize)]
+>>>>>>> 87b8c5fc298a7722fe51ecd076fffa1b8f1c1d13
 local = generate_local_field(states, weights, bias)
+print(run_simulation_flip(states, weights, bias, 100000000, local, 10, 25, 5))
+
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_flip(states, weights, bias, 10000000, local, 10, 25, 5))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_flip(states, weights, bias, 10000000, local, 10, 25, 5))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_flip(states, weights, bias, 10000000, local, 10, 25, 5))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_flip(states, weights, bias, 10000000, local, 10, 25, 5))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_flip(states, weights, bias, 10000000, local, 10, 25, 5))
+
+print("\n\n")
+print("Basic")
+
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_basic(states,weights,bias,10000000, local))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_basic(states,weights,bias,10000000, local))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_basic(states,weights,bias,10000000, local))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_basic(states,weights,bias,10000000, local))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_basic(states,weights,bias,10000000, local))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_basic(states,weights,bias,10000000, local))
+
+print("\n\n")
+states = [0 for i in range(arraysize)]
+local = generate_local_field(states, weights, bias)
+print(run_simulation_basic(states,weights,bias,10000000, local))
 
 """
 #from gaussian
@@ -76,3 +151,4 @@ print("Flip time: ", diff)
 # print(calculate_system_energy(s,w,b))
 # print(run_simulation_basic(s,w,b,c,local_e_list))
 # print(run_simulation_theirs(s,w,b,c,local_e_list,1))
+
