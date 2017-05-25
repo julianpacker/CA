@@ -91,12 +91,12 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
         count += 1
         if nsc == nsc_period:
             num_of_flips += 1
-            flip_p = int(flip_p - dec_flip)  ## change the flip amount here
-            if flip_p <= 0:
-                print("Done Flipping! ")
-
-                break
             new_e = calculate_system_energy(states, weights, bias)
+            flip_p = int(flip_p - dec_flip)  ## change the flip amount here
+            if flip_p <= 0: 
+                print("Done Flipping! ")
+                break
+            print("New challenger", new_e)
             if new_e < old_best_e:
                 old_best_state = states[:]
                 old_best_e = new_e
@@ -106,7 +106,7 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
             for f in range(flip_p):
                 ind = rnd.randint(0, (len(states) - 1))
                 states[ind] = rnd.randint(0, 1)
-
+            print ("after flip", calculate_system_energy(states,weights,bias))
         index = rnd.randint(0, size)
         if local[index] < 0 and states[index] == 1:
             states[index] = 0
@@ -123,8 +123,10 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
             nsc += 1
     else:
         print("Out of time!")
+        
+    new_e = calculate_system_energy(states, weights, bias)
+    if  new_e > old_best_e:
         states = old_best_state[:]
-
     print("Flip Number", num_of_flips)
     return calculate_system_energy(states, weights, bias)
 
