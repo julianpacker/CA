@@ -38,3 +38,4 @@ def generate_gauss2(size):
 def random_bias(size):
     l = [(rnd.random() - 0.5) * 2 for i in range(size)]
     return l
+
