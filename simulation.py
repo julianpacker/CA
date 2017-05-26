@@ -42,10 +42,11 @@ def update_local_field(states, weights, local_list, element):
     return local_list
 
 
-def run_simulation_basic(states, weights, bias, counter, local):
+def run_simulation_basic(states, weights, bias, counter):
     """Basic simulation with no noise, choosing variable to test at random"""
     c = counter
     size = len(states) - 1
+    local = generate_local_field(states, weights, bias)
     while c != 0:
         c -= 1
         index = rnd.randint(0, size)  # find a random state to check local
@@ -55,13 +56,14 @@ def run_simulation_basic(states, weights, bias, counter, local):
         elif local[index] > 0 and states[index] == 0:
             states[index] = 1
             update_local_field(states, weights, local, index)
-    return calculate_system_energy(states, weights, bias)
+    return [calculate_system_energy(states, weights, bias)]
 
 
-def run_simulation_theirs(states, weights, bias, counter, local, noise_level):
+def run_simulation_theirs(states, weights, bias, counter,  noise_level):
     """Simulating with a specified noise level that decreases with counter"""
     c = counter
     size = len(states) - 1
+    local = generate_local_field(states,weights,bias)
     while c != 0:
         c -= 1
         index = rnd.randint(0, size)
@@ -73,10 +75,10 @@ def run_simulation_theirs(states, weights, bias, counter, local, noise_level):
         elif local[index] > testing_level and states[index] == 0:
             states[index] = 1
             update_local_field(states, weights, local, index)
-    return calculate_system_energy(states, weights, bias)
+    return [calculate_system_energy(states, weights, bias)]
 
 
-def run_simulation_flip(states, weights, bias, counter, local, wait_period, init_flip, dec_flip):
+def run_simulation_flip(states, weights, bias, counter, wait_period, init_flip, dec_flip):
     """Run descent until no change for weight_period, save old state """
     count = 0
     nsc = 0
@@ -86,7 +88,7 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
     old_best_e = 1000000000000000000
     flip_p = init_flip
     num_of_flips = 0
-
+    local = generate_local_field(states,weights,bias)
     while count < counter:
         count += 1
         if nsc == nsc_period:
@@ -94,9 +96,7 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
             new_e = calculate_system_energy(states, weights, bias)
             flip_p = int(flip_p - dec_flip)  ## change the flip amount here
             if flip_p <= 0: 
-                print("Done Flipping! ")
                 break
-            print("New challenger", new_e)
             if new_e < old_best_e:
                 old_best_state = states[:]
                 old_best_e = new_e
@@ -106,7 +106,6 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
             for f in range(flip_p):
                 ind = rnd.randint(0, (len(states) - 1))
                 states[ind] = rnd.randint(0, 1)
-            print ("after flip", calculate_system_energy(states,weights,bias))
         index = rnd.randint(0, size)
         if local[index] < 0 and states[index] == 1:
             states[index] = 0
@@ -121,20 +120,19 @@ def run_simulation_flip(states, weights, bias, counter, local, wait_period, init
             if nsc < 0:
                 nsc = 0
             nsc += 1
-    else:
-        print("Out of time!")
-        
+       
+       
     new_e = calculate_system_energy(states, weights, bias)
     if  new_e > old_best_e:
         states = old_best_state[:]
-    print("Flip Number", num_of_flips)
-    return calculate_system_energy(states, weights, bias)
+    return [calculate_system_energy(states, weights, bias),num_of_flips]
 
-def run_simulation_1_update(states, weights, bias, counter, local, noise_level):
+def run_simulation_1_update(states, weights, bias, counter,  noise_level):
     """Simulating with a specified noise level that decreases with counter.
     Every 10 counts, choose the largest local field and switch its state"""
     c = counter
     size = len(states) - 1
+    local = generate_local_field(states,weights,bias)
     while c != 0:
         c -= 1
         if c % 100 == 0:
@@ -165,7 +163,7 @@ def run_simulation_1_update(states, weights, bias, counter, local, noise_level):
         elif local[index] > testing_level and states[index] == 0:
             states[index] = 1
             update_local_field(states, weights, local, index)
-    return calculate_system_energy(states, weights, bias)
+    return [calculate_system_energy(states, weights, bias)]
 
 
 def test_basic(args, function):

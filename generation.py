@@ -14,6 +14,8 @@ def list_from_file(file_name):
     matrix = list(map(int, f.readline().rstrip().split(' ')))
     return matrix
 
+def flip_bias(biases):
+    return [(-1) * bias for bias in biases]
 
 def make_diagonal_zero(matrix):
     for i in range(len(matrix)):
