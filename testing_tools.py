@@ -56,7 +56,8 @@ def repetitive_test(function_to_test, number_of_tests, states_mode, *args, init_
     for i in range(number_of_tests):
         states_for_testing = restore_states(states_mode)
         start_time = time.time()
-        returned_values.append(function_to_test(states_for_testing, *args))
+        inst = function_to_test(states_for_testing, *args)
+        returned_values.append([inst.run_simulation()])
         timings_list.append(time.time() - start_time)
 
-    return (returned_values, timings_list, function_to_test.__name__)
+    return (returned_values, timings_list, inst.name)

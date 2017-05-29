@@ -1,82 +1,93 @@
 import random as rnd
-import statistics
+from math import inf
 
-def calculate_system_energy(states, weights, bias):
-    """Energy is calculated by E = - Wij * Si *Sj + Bi *si
-        for all Si and Sj connections and own biases"""
-    energy = 0
-    for i in range(len(weights)):
-        for j, weight in enumerate(weights[i][i:], start=i):
-            energy -= (weight * states[i] * states[j])
-        energy += (bias[i] * states[i])
-    return energy
+class Simulation:
+    "Parent of all simulations"
+    def __init__(self, states, weights, bias, counter):
+        assert len(states) == len(weights) == len(bias)
+        self.counter = counter
+        self.states = states
+        self.weights = weights
+        self.bias = bias
+        self.generate_local_field()
+        self.size = len(bias) - 1
+        self.c = counter
+        self.current_energy = inf
+        self.name = self.__class__.__name__
+        return
 
-
-def calculate_local_field(states, weights, bias, element):
-    """Calculates local field for specific element"""
-    local_energy = 0
-    for index, weight in enumerate(weights[element]):
-        local_energy += weight * states[index]
-    local_energy -= bias[element]
-    return local_energy
-
-
-def generate_local_field(states, weights, bias):
-    """Generates local field by calculating it for each element"""
-    # local_e_list = []
-    # for index, state in enumerate(states):
-    #     local_e_list.append(calculate_local_field(states, weights, bias, index))
-    # return
-    g = lambda x: calculate_local_field(states, weights, bias, x)
-    l_list = list(map(g, range(len(states))))
-    return l_list
+    def calculate_system_energy(self):
+        """Energy is calculated by E = - Wij * Si *Sj + Bi *si
+           for all Si and Sj connections and own biases"""
+        energy = 0
+        for i in range(len(self.weights)):
+            for j, weight in enumerate(self.weights[i][i:], start=i):
+                energy -= (weight * self.states[i] * self.states[j])
+            energy += (self.bias[i] * self.states[i])
+        return energy
 
 
-def update_local_field(states, weights, local_list, element):
-    """Updates local field after changing one state"""
-    coeff = 1
-    if states[element] == 0:
-        coeff = -1
-    for i in range(len(local_list)):
-        local_list[i] += coeff * weights[element][i]
-    return local_list
+    def calculate_local_field(self, element):
+        """Calculates local field for specific element"""
+        local_energy = 0
+        for index, weight in enumerate(self.weights[element]):
+            local_energy += weight * self.states[index]
+        local_energy -= self.bias[element]
+        return local_energy
 
 
-def run_simulation_basic(states, weights, bias, counter):
-    """Basic simulation with no noise, choosing variable to test at random"""
-    c = counter
-    size = len(states) - 1
-    local = generate_local_field(states, weights, bias)
-    while c != 0:
-        c -= 1
-        index = rnd.randint(0, size)  # find a random state to check local
-        if local[index] < 0 and states[index] == 1:
-            states[index] = 0
-            update_local_field(states, weights, local, index)
-        elif local[index] > 0 and states[index] == 0:
-            states[index] = 1
-            update_local_field(states, weights, local, index)
-    return [calculate_system_energy(states, weights, bias)]
+    def generate_local_field(self):
+        """Generates local field by calculating it for each element"""
+        g = lambda x: self.calculate_local_field(x)
+        self.local = list(map(g, range(len(self.states))))
 
 
-def run_simulation_theirs(states, weights, bias, counter,  noise_level):
-    """Simulating with a specified noise level that decreases with counter"""
-    c = counter
-    size = len(states) - 1
-    local = generate_local_field(states,weights,bias)
-    while c != 0:
-        c -= 1
-        index = rnd.randint(0, size)
-        testing_level = ((rnd.random() - 0.5)*1000 / noise_level) * (c / counter)
+    def update_local_field(self, element):
+        """Updates local field after changing one state"""
+        coeff = 1
+        if self.states[element] == 0:
+            coeff = -1
+        for i in range(len(self.local)):
+            self.local[i] += coeff * self.weights[element][i]
+
+    def run_simulation(self):
+        while self.c != 0:
+            self.simulation_step()
+        return self.calculate_system_energy()
+    
+    def state_change(self, index, level = 0):
+        if self.local[index] < level and self.states[index] == 1:
+            self.states[index] = 0
+            self.update_local_field(index)
+        elif self.local[index] > level and self.states[index] == 0:
+            self.states[index] = 1
+            self.update_local_field(index)
+
+class Simulation_Basic(Simulation):
+    " Simulation using the basic algorithm"
+    def __init__(self, states, weights, bias, counter):
+        super().__init__(states, weights, bias, counter)   
+   
+    def simulation_step(self):
+        """Basic simulation with no noise, choosing variable to test at random"""
+        self.c -= 1
+        index = rnd.randint(0, self.size)  # find a random state to check local
+        self.state_change(index)
+        return
+    
+
+class Simulation_Noise(Simulation):
+    "Simulation using noise to make decisison if to change state"
+    def __init__(self, states, weights, bias, counter, noise_level):
+        self.noise_level = noise_level
+        super().__init__(states,weights,bias,counter)
+
+    def simulation_step(self):
+        self.c -= 1
+        index = rnd.randint(0, self.size)
+        testing_level = ((rnd.random() - 0.5)*1000 / self.noise_level) * (self.c / self.counter)
         # testing_level centered around 0 with some noise to allow hill climbing
-        if local[index] < testing_level and states[index] == 1:
-            states[index] = 0
-            update_local_field(states, weights, local, index)
-        elif local[index] > testing_level and states[index] == 0:
-            states[index] = 1
-            update_local_field(states, weights, local, index)
-    return [calculate_system_energy(states, weights, bias)]
-
+        self.state_change(index, testing_level)
 
 def run_simulation_flip(states, weights, bias, counter, wait_period, init_flip, dec_flip):
     """Run descent until no change for weight_period, save old state """
@@ -165,54 +176,4 @@ def run_simulation_1_update(states, weights, bias, counter,  noise_level):
             update_local_field(states, weights, local, index)
     return [calculate_system_energy(states, weights, bias)]
 
-
-def test_basic(args, function):
-    """Runs basic test "times" amount of times and prints output min, stdev and mode (if exists)"""
-    outputs = []
-    # states, weights, bias, counter, local, times
-    weights = args[1]
-    bias = args[2]
-    counter = args[3]
-    times = args[5]
-    while times != 0:
-        times -= 1
-        tstates = args[0][:]
-        tlocal = args[4][:]
-        output = function(tstates, weights, bias, counter, tlocal)
-        outputs.append(output)
-    print("Results: ")
-    # print(outputs)
-    print("min: ", round(min(outputs), 1), "stddev: ", round(statistics.stdev(outputs), 1))
-    print("avg: ", round(statistics.median(outputs)))
-    try:
-        print("mode: ", statistics.mode(outputs))
-    except statistics.StatisticsError:
-        print("No common mode")
-    return
-
-
-def test_multiple(args, function):
-    """Runs theirs/new test (noise) "times" amount of times and prints output min, stdev and mode (if exists)"""
-    outputs = []
-    # states, weights, bias, counter, local, noise, times
-    weights = args[1]
-    bias = args[2]
-    counter = args[3]
-    noise = args[5]
-    times = args[6]
-    while times != 0:
-        times -= 1
-        tstates = args[0][:]
-        tlocal = args[4][:]
-        output = function(tstates, weights, bias, counter, tlocal, noise)
-        outputs.append(output)
-    print("Results: ")
-    # print(outputs)
-    print("min: ", round(min(outputs), 1), "stddev: ", round(statistics.stdev(outputs), 1))
-    print("avg: ", round(statistics.median(outputs)))
-    try:
-        print("mode: ", statistics.mode(outputs))
-    except statistics.StatisticsError:
-        print("No common mode")
-    return
 
