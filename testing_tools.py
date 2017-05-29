@@ -1,5 +1,6 @@
 import random as rnd
 import time 
+import math
 from statistics import stdev, mean, median
 import matplotlib.pyplot as plt
 
@@ -41,15 +42,19 @@ def print_test_results(returned_list,  all_energies = 0, all_timings = 0, messag
 def graph_runs(code, runs):
     """ Work in progress"""
     size = len(runs)
-    print (runs)
-    if size > 5:
+    if size > 9:
         ans = input("Are you sure you want to print ", size, " runs? 1 = yes")
         if int(ans) != 1:
             return
-    for item in runs:
-        plt.plot(item)
-        plt.ylabel('some numbers')
-        plt.show()
+    window_size = math.ceil(math.sqrt(size))
+    pre = str(window_size) + str(window_size)
+    fig = plt.figure()
+    for i, item in enumerate(runs, 1):
+        ax1 = fig.add_subplot(int(pre + str(i)))
+        plt.plot(item[1],item[0])
+        plt.ylabel('System Energy')
+        plt.xlabel("Step number")
+    plt.show()
 
 def repetitive_test(function_to_test, number_of_tests, states_mode, *args, init_state = None, repetitive = 0):
     """Test the class function_to_test  number_of_tests times using the argument_list provided.

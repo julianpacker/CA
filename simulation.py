@@ -16,6 +16,7 @@ class Simulation:
         self.current_energy = inf
         self.final_energy = inf
         self.start_energy = inf
+        self.calculated_energies_times = []
         self.calculated_energies = []
         self.run_simulation_time = inf
         self.message = ""
@@ -23,7 +24,7 @@ class Simulation:
         return
 
     def items_to_return(self):
-        return [self.name, self.final_energy, self.run_simulation_time, self.message, self.calculated_energies]
+        return [self.name, self.final_energy, self.run_simulation_time, self.message, [self.calculated_energies, self.calculated_energies_times]]
 
     def calculate_system_energy(self):
         """Energy is calculated by E = - Wij * Si *Sj + Bi *si
@@ -69,6 +70,7 @@ class Simulation:
 
     def run_simulation_period(self, period):
         self.calculated_energies.append(self.calculate_system_energy())
+        self.calculated_energies_times.append(0)
         count = 0
         start_time = time.time()
         self.run_simulation_time = 0
@@ -79,9 +81,11 @@ class Simulation:
                 self.run_simulation_time += time.time() - start_time
                 count = 0
                 self.calculated_energies.append(self.calculate_system_energy()) 
+                self.calculated_energies_times.append(self.counter - self.c)
                 start_time = time.time()
         self.final_energy = self.calculate_system_energy()
         self.calculated_energies.append(self.final_energy)
+        self.calculated_energies_times.append(self.counter)
         
 
     def state_change(self, index, level = 0):
@@ -133,16 +137,19 @@ class Simulation_Flip(Simulation):
                 self.simulation_step()
             except Exception:
                 break
-        self.new_e = self.calculate_system_energy()
-        if  self.new_e > self.old_best_e:
-            self.states = self.old_best_state[:]
+        self.final_energy = self.calculate_system_energy()
+        if  self.final_energy > self.old_best_e:
+            self.final_energy = self.old_best_e
+            self.states = self.old_best_state
         self.run_simulation_time = time.time() - start_time
         self.message = self.num_of_flips
-        self.final_energy = self.calculate_system_energy()
    
     def run_simulation_period(self, period):
         self.calculated_energies.append(self.calculate_system_energy())
+        self.calculated_energies_times.append(0)
         count = 0
+        start_time = time.time()
+        self.run_simulation_time = 0
         while self.c != 0:
             count += 1
             try:
@@ -150,14 +157,24 @@ class Simulation_Flip(Simulation):
             except Exception:
                 break
             if count == period:
+                self.run_simulation_time += time.time() - start_time
                 count = 0
                 self.calculated_energies.append(self.calculate_system_energy()) 
+                self.calculated_energies_times.append(self.counter - self.c)
+                start_time = time.time()
         self.message = self.num_of_flips
-        self.calculated_energies.append(self.calculate_system_energy())
+        self.final_energy = self.calculate_system_energy()
+        if  self.final_energy > self.old_best_e:
+            self.final_energy = self.old_best_e
+            self.states = self.old_best_state
+        self.calculated_energies.append(self.final_energy)
+        self.calculated_energies_times.append(self.counter -self.c)
         
     def simulation_step(self):
         self.c -= 1
         if self.nsc == self.nsc_period:
+            self.calculated_energies.append(self.calculate_system_energy()) 
+            self.calculated_energies_times.append(self.counter - self.c)
             self.num_of_flips += 1
             self.new_e = self.calculate_system_energy()
             self.flip_p = int(self.flip_p - self.dec_flip)  ## change the flip amount here
