@@ -1,32 +1,39 @@
-import random as rnd
-import statistics
-import time
 from simulation import *
+from testing_tools import *
 from generation import *
 
-def input_data(weights, bias):
-    sum = 0
-    sum2 = 0
-    for i in range(len(weights)):
-        for j in range(len(weights)):
-            sum += weights[i][j]
-    for i in range (len(bias)):
-        sum2 += bias[i]
-    avg = sum/(len(weights)**2)
-    avg2 = sum2/len(bias)
-    print(avg, avg2)
-
-# inputs and test
-# from file
+# setup from file - all parameters
 weights = matrix_from_file("w_5_1.txt")
-bias = list_from_file("lf_5_1.txt")
-for index, biasval in enumerate(bias):
-    bias[index] = -biasval  # flip bias values as per behraz
-symmetrize(weights)
-arraysize = len(bias)
-print("Array size: ", arraysize)
-states = [1 for i in range(arraysize)]
-local = generate_local_field(states, weights, bias)
+bias = flip_bias(list_from_file("lf_5_1.txt"))
+counter = 1000
+states_mode = 2
+number_of_tests = 5
+noise = 0.07
+wait_period = 10
+init_flip = 7
+dec_flip = 2
+# Values tested for noise for lf_5_1 and w_5_1 input values:
+# 0.01, 0.05, 0.06, 0.065, 0.0675, 0.07, 0.0725, 0.075, 0.08 ,0.09, 0.1, 0.2, 0.3, 0.5, 0.7, 1, 1.1, 10, 100
+# 0.07 was selected as final value, but 0.065-0.075 all about the same
+
+"""    The states mode determines what initial state is used.
+       0 = Use all 0s
+       1 = Use all 1s
+       2 = Use random
+       3 = Use the one from argument_list (optional init_state variable)
+"""
+
+# repetitive_test(function_to_test, number_of_tests, states_mode, *args, init_state = None):
+print_test_results(*repetitive_test(Simulation_1Update, number_of_tests, states_mode, weights, bias, counter, noise))
+
+#print_test_results(*repetitive_test(Simulation_Basic, number_of_tests, states_mode, weights, bias, counter))
+
+print_test_results(*repetitive_test(Simulation_Noise, number_of_tests, states_mode, weights, bias, counter, noise))
+
+# print_test_results(*repetitive_test(run_simulation_flip, number_of_tests, states_mode, weights, bias, counter,
+#                                      wait_period, init_flip, dec_flip))
+
+#old data and old test styles
 
 """
 #from gaussian
@@ -39,17 +46,7 @@ bias = random_bias(array_size)
 states = [0 for i in range(array_size)]
 local = generate_local_field(states,weights,bias)
 print("here")
-"""
 
-counter = 50 #number of iterations
-noise = .01 #higher value means less noise
-times = 100 # number of times test is run
-print("Ready to start")
-
-
-
-
-'''
 print("Basic test: ")
 args = [states, weights, bias, counter, local, times]
 start = time.time()
@@ -58,49 +55,21 @@ diff = time.time() - start
 print("Basic time: ", diff)
 print()
 
-'''
 args = [states, weights, bias, counter, local, noise, times]
 #input_data(weights,bias)
 #in this case is about 1000
 #0.0001,0.001 no good
 
-print("Noise (Theirs) test: ")
-start = time.time()
-print("noise = ", noise)
-test_multiple(args, run_simulation_theirs)
-
-noise = .1
-print("noise = ", noise)
-test_multiple(args, run_simulation_theirs)
-
-noise = 1
-print("noise = ", noise)
-test_multiple(args, run_simulation_theirs)
-
-diff = time.time() - start
-print("Noise (Theirs) time: ", diff)
-print()
-
-'''
-print("New test: ")
-start = time.time()
-test_multiple(args, run_simulation_1_update)
-diff = time.time() - start
-print("New time: ", diff)
-'''
-'''
-
-start = time.time()
-print(run_simulation_flip(states, weights, bias, counter, local, 10, 150, 25))
-diff = time.time() - start
-print("Flip time: ", diff)
-'''
-# 4 states
-# s = [0,0,0,0]
-# w = [[0,2,3,-1],[2,0,6,3],[3,6,0,4],[-1,3,4,0]]
-# b = [-1,2,-3,7]
-# c = 10 #counter
-# local_e_list = generate_local_field(s,w,b)
-# print(calculate_system_energy(s,w,b))
-# print(run_simulation_basic(s,w,b,c,local_e_list))
-# print(run_simulation_theirs(s,w,b,c,local_e_list,1))
+def input_data(weights, bias):
+    sum = 0
+    sum2 = 0
+    for i in range(len(weights)):
+        for j in range(len(weights)):
+            sum += weights[i][j]
+    for i in range (len(bias)):
+        sum2 += bias[i]
+    avg = sum/(len(weights)**2)
+    avg2 = sum2/len(bias)
+    print(avg, avg2)
+    return
+"""

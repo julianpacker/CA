@@ -1,5 +1,6 @@
 import random as rnd
 from math import inf
+from heapq import nsmallest, nlargest
 
 class Simulation:
     "Parent of all simulations"
@@ -89,6 +90,32 @@ class Simulation_Noise(Simulation):
         # testing_level centered around 0 with some noise to allow hill climbing
         self.state_change(index, testing_level)
 
+
+class Simulation_1Update(Simulation):
+    "Simulation using noise and 1-opt local updates to make decision if to change state"
+    def __init__(self, states, weights, bias, counter, noise_level):
+        self.noise_level = noise_level
+        super().__init__(states,weights,bias,counter)
+
+    def simulation_step(self):
+        self.c -= 1
+        if self.c % 7 == 0:
+            # flip largest local field
+            min_local_index = self.local.index(rnd.choice(nsmallest(5, self.local)))
+            old_states = self.states[:]
+            old_energy = self.calculate_system_energy()
+            if self.states[min_local_index] == 1:
+                self.states[min_local_index] = 0
+                self.update_local_field(min_local_index)
+            new_energy = self.calculate_system_energy()
+            if new_energy > old_energy: #didn't find a better state, revert back
+                self.states = old_states[:]
+                self.update_local_field(min_local_index)
+        index = rnd.randint(0, self.size)
+        testing_level = ((rnd.random() - 0.5)*1000 / self.noise_level) * (self.c / self.counter)
+        self.state_change(index, testing_level)
+
+
 def run_simulation_flip(states, weights, bias, counter, wait_period, init_flip, dec_flip):
     """Run descent until no change for weight_period, save old state """
     count = 0
@@ -146,23 +173,39 @@ def run_simulation_1_update(states, weights, bias, counter,  noise_level):
     local = generate_local_field(states,weights,bias)
     while c != 0:
         c -= 1
-        if c % 100 == 0:
+        if c % 7 == 0:
             # flip largest local field
-            #print(calculate_system_energy(states, weights, bias))
-            min_local_index = local.index(min(local))
-            #print("min: ", local[min_local_index])
+            # print(calculate_system_energy(states, weights, bias))
+            min_local_index = local.index(rnd.choice(nsmallest(5, local)))
+            # print("min: ", local[min_local_index])
+            old_states = states[:]
+            old_energy = calculate_system_energy(states, weights, bias)
             if states[min_local_index] == 1:
+                # print("flip mins")
                 states[min_local_index] = 0
                 update_local_field(states, weights, local, min_local_index)
+            new_energy = calculate_system_energy(states, weights, bias)
+            if new_energy > old_energy:
+                states = old_states[:]  # revert back to old state
+            else:
+                # print("Did not revert")
+                times_not_reverted += 1
+            # add in if change doesn't help, revert to old state
 
-            #print(calculate_system_energy(states, weights, bias))
-            max_local_index = local.index(max(local))
+
+            # print(calculate_system_energy(states, weights, bias))
+            """
+            max_local_index = local.index(rnd.choice(nlargest(1, local)))
+
             if states[max_local_index] == 0:
+                #print("flip max")
                 states[max_local_index] = 1
                 update_local_field(states, weights, local, max_local_index)
+            """
+            # print(min_local_index, max_local_index, local)
+            # print(calculate_system_energy(states, weights, bias))
+            # continue
 
-            #print(calculate_system_energy(states, weights, bias))
-            continue
 
         index = rnd.randint(0, size)
         testing_level = ((rnd.random() - 0.5) / noise_level) * (c / counter)
