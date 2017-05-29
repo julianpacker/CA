@@ -10,7 +10,8 @@ states = [0 for i in range(25)]
 
 #print_test_results(*repetitive_t_resultsest(Simulation_Basic, 50, 2, weights, bias, 100000))
 #print_test_results(*repetitive_test(Simulation_Noise, 50, 2, weights, bias, 100000, 0.07))
-print_test_results(repetitive_test(Simulation_Noise, 1,0, weights, bias, 10000,0.07, repetitive = 1),repetitive = 1)
+print_test_results(repetitive_test(Simulation_Flip, 2,0, weights, bias, 10000,5, 25, 3, repetitive = 5),repetitive = 1, messages = 1)
+
 
 
 
