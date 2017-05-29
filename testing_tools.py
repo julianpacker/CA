@@ -1,33 +1,61 @@
 import random as rnd
 import time 
 from statistics import stdev, mean, median
+import matplotlib.pyplot as plt
 
-def print_test_results(returned_list, timings_list, name,  all_energies = 0, all_timings = 0, messages = 0): 
-    print (name)
+def print_test_results(returned_list,  all_energies = 0, all_timings = 0, messages = 0, repetitive = 0):
+    print (returned_list[0][0])
+    print ("Number of Tests: ", len(returned_list))
     calculated_energies = list(zip(*returned_list))
     
-    min_energy = min(calculated_energies[0])
-    min_energy_time = timings_list[calculated_energies[0].index(min_energy)]
+    min_energy = min(calculated_energies[1])
+    min_energy_time = calculated_energies[2][calculated_energies[1].index(min_energy)]
     print ("Lowest energy: ", min_energy, " took ", min_energy_time)
 
-    max_energy = max(calculated_energies[0])
-    max_energy_time = timings_list[calculated_energies[0].index(max_energy)]
+    max_energy = max(calculated_energies[1])
+    max_energy_time = calculated_energies[2][calculated_energies[1].index(max_energy)]
     print ("Highest energy: ", max_energy, "took", max_energy_time)
 
-    average_energy = mean(calculated_energies[0])
+    average_energy = mean(calculated_energies[1])
     print ("Average energy: ", average_energy)
-    median_energy = median(calculated_energies[0])
+    median_energy = median(calculated_energies[1])
     print ("Median energy: ", median_energy)
-    stddev = stdev(calculated_energies[0])
-    print ("Standard deviation: ", stddev)
-    average_time = mean(timings_list)
+    try:
+        stddev = stdev(calculated_energies[1])
+        print ("Standard deviation: ", stddev)
+    except:
+        print ("Standard deviation is not available for single run!")
+    average_time = mean(calculated_energies[2])
     print ("Average time: ", average_time)
-    print ("\n\n")
+    if all_energies:
+        print ("All energies: ", calculated_energies[1])
+    if all_timings:
+        print ("All timings: ", calculated_energies[2])
+    if messages:
+        print ("All messgaes: ", calculated_energies[3])
+    if repetitive != 0:
+        graph_runs(repetitive, calculated_energies[4])
+    print ()
     return
 
-def repetitive_test(function_to_test, number_of_tests, states_mode, *args, init_state = None):
-    """Test the function_to_test number_of_tests times using the argument_list provided.
+def graph_runs(code, runs):
+    """ Work in progress"""
+    size = len(runs)
+    print (runs)
+    if size > 5:
+        ans = input("Are you sure you want to print ", size, " runs? 1 = yes")
+        if int(ans) != 1:
+            return
+    for item in runs:
+        plt.plot(item)
+        plt.ylabel('some numbers')
+        plt.show()
+
+def repetitive_test(function_to_test, number_of_tests, states_mode, *args, init_state = None, repetitive = 0):
+    """Test the class function_to_test  number_of_tests times using the argument_list provided.
        The states mode determines what initial state is used.
+       init_state defines the initial state for mode 3
+       repetive provides the period at which energy samples should be taken, 0 = dont take any samples.
       
        0 = Use all 0s
        1 = Use all 1s
@@ -51,13 +79,14 @@ def repetitive_test(function_to_test, number_of_tests, states_mode, *args, init_
             raise Exception("Invalid states_mode")
         return
 
-    returned_values =  []
-    timings_list = []
+    returned_values = []
     for i in range(number_of_tests):
         states_for_testing = restore_states(states_mode)
-        start_time = time.time()
         inst = function_to_test(states_for_testing, *args)
-        returned_values.append([inst.run_simulation()])
-        timings_list.append(time.time() - start_time)
+        if not repetitive != 0:
+            inst.run_simulation()
+        else:
+            inst.run_simulation_period(repetitive)
+        returned_values.append(inst.items_to_return())
+    return returned_values
 
-    return (returned_values, timings_list, inst.name)

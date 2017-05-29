@@ -3,10 +3,10 @@ from testing_tools import *
 from generation import *
 
 # setup from file - all parameters
-weights = matrix_from_file("w2.txt")
-bias = flip_bias(list_from_file("f2.txt"))
+weights = matrix_from_file("w_5_1.txt")
+bias = flip_bias(list_from_file("lf_5_1.txt"))
 print("ready")
-counter = len(bias)**2
+counter = 100
 states_mode = 2
 number_of_tests = 100
 noise = 0.07
@@ -25,10 +25,14 @@ dec_flip = 2
 """
 
 # repetitive_test(function_to_test, number_of_tests, states_mode, *args, init_state = None):
-print_test_results(*repetitive_test(Simulation_Basic, number_of_tests, states_mode, weights, bias, counter))
-print_test_results(*repetitive_test(Simulation_Noise, number_of_tests, states_mode, weights, bias, counter, noise))
 
-print_test_results(*repetitive_test(Simulation_1Update, number_of_tests, states_mode, weights, bias, counter, noise))
+print_test_results(repetitive_test(Simulation_Noise, 100,0, weights, bias, 10000,0.07, repetitive = 1),repetitive = 1)
+# function_to_test, number_of_tests, states_mode, *args, init_state = None, repetitive = 0
+
+#print_test_results(*repetitive_test(Simulation_Basic, number_of_tests, states_mode, weights, bias, counter, repetitive = 1), repetitive = 1)
+#print_test_results(*repetitive_test(Simulation_Noise, number_of_tests, states_mode, weights, bias, counter, noise))
+
+#print_test_results(*repetitive_test(Simulation_1Update, number_of_tests, states_mode, weights, bias, counter, noise))
 # 1Update is much too slow when file size goes up, not a viable solution
 
 
