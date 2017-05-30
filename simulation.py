@@ -152,13 +152,14 @@ class Simulation_MergeNoise(Simulation):
 
 class Simulation_1Update(Simulation):
     "Simulation using noise and 1-opt local updates to make decision if to change state"
-    def __init__(self, states, weights, bias, counter, noise_level):
+    def __init__(self, states, weights, bias, counter, noise_level, update_interval):
         self.noise_level = noise_level
         super().__init__(states,weights,bias,counter)
+        self.update_interval = update_interval
 
     def simulation_step(self):
         self.c -= 1
-        if self.c % 100 == 0:
+        if self.c % self.update_interval == 0:
             # flip largest local field
             min_local_index = self.local.index(rnd.choice(nsmallest(int(len(self.local)/10), self.local)))
             max_local_index = self.local.index(rnd.choice(nlargest(int(len(self.local)/10),self.local)))

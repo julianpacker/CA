@@ -11,9 +11,10 @@ states = [0 for i in range(25)]
 #print_test_results(*repetitive_t_resultsest(Simulation_Basic, 50, 2, weights, bias, 100000))
 #print_test_results(*repetitive_test(Simulation_Noise, 50, 2, weights, bias, 100000, 0.07))
 
+
 b = Test_Run(Simulation_MergeNoise, 10 ,0, weights, bias, 5,0.07,4,750, repetitive= 1)
 b.print_test_results()
-print("here")
+
 a = Test_Run(Simulation_Noise, 5,0, weights, bias, 30000,0.07, repetitive = 5)
 a.print_test_results()
 
