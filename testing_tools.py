@@ -172,9 +172,35 @@ class Test_Runs:
             print (item1, self.parameters[item2])
                     
 
+    def searchmode_average(self):
+        min_energy = inf 
+        min_energy_indeces = []
+        for i, item in enumerate(self.instances):
+            value = item.average_energy
+            if min_energy > value:
+                min_energy = value
+                min_energy_indeces = [i]
+            elif min_energy == value:
+                min_energy_indeces.append(i) 
+        print ("Minimum average  energy: ", min_energy, " was achieved ", len(min_energy_indeces), " times.")
+        for item in min_energy_indeces:
+            print (self.parameters[item])
 
 
 
+    def searchmode_median(self):
+        min_energy = inf 
+        min_energy_indeces = []
+        for i, item in enumerate(self.instances):
+            value = item.median_energy
+            if min_energy > value:
+                min_energy = value
+                min_energy_indeces = [i]
+            elif min_energy == value:
+                min_energy_indeces.append(i) 
+        print ("Minimum average  energy: ", min_energy, " was achieved ", len(min_energy_indeces), " times.")
+        for item in min_energy_indeces:
+            print (self.parameters[item])
 
 
 

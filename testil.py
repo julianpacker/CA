@@ -14,8 +14,8 @@ states = [0 for i in range(25)]
 #a = Test_Run(Simulation_Flip, 9,0, weights, bias, 10000,5, 25, 3, repetitive = 5)
 #a.print_test_results()
 #a.graph_runs()
-a = Test_Runs(Simulation_Noise, 5, 0, weights, bias, [(100000, 100000, 1),(0.01,2,20)])
-a.searchmode_lowest()
+a = Test_Runs(Simulation_Noise, 50, 0, weights, bias, [(50000, 50000, 1),(0.01,0.15,20)])
+a.searchmode_median()
 
 
 #a = Test_Run(Simulation_Noise,5,0,weights, bias,*(10000,1))
