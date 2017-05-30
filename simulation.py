@@ -25,7 +25,7 @@ class Simulation:
         return
 
     def items_to_return(self):
-        return [self.name, self.final_energy, self.run_simulation_time, self.message, [self.calculated_energies, self.calculated_energies_times]]
+        return self.final_energy, self.run_simulation_time, self.message, [self.calculated_energies, self.calculated_energies_times]
 
     def calculate_system_energy(self):
         """Energy is calculated by E = - Wij * Si *Sj + Bi *si

@@ -10,10 +10,14 @@ states = [0 for i in range(25)]
 
 #print_test_results(*repetitive_t_resultsest(Simulation_Basic, 50, 2, weights, bias, 100000))
 #print_test_results(*repetitive_test(Simulation_Noise, 50, 2, weights, bias, 100000, 0.07))
-save_test_results_to_file(repetitive_test(Simulation_Flip, 2,0, weights, bias, 10000,5, 25, 3, repetitive = 5),repetitive = 1, messages = 1)
+
+#a = Test_Run(Simulation_Flip, 9,0, weights, bias, 10000,5, 25, 3, repetitive = 5)
+#a.print_test_results()
+#a.graph_runs()
+a = Test_Runs(Simulation_Noise, 5, 0, weights, bias, [(100000, 100000, 1),(0.01,2,20)])
+a.searchmode_lowest()
 
 
-
-
+#a = Test_Run(Simulation_Noise,5,0,weights, bias,*(10000,1))
 
 
