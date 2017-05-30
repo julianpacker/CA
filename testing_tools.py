@@ -128,6 +128,20 @@ class Test_Run:
         print ()
         return
 
+    def save_test_results(self, file_name = "results.txt"):
+        f = open(file_name, 'w')
+        string1 = "Number of Tests: " + str(self.number_of_tests) + '\n'
+        string2 = "Lowest energy: " + str(self.min_energy) + " was achieved "+ str(len(self.min_energy_indeces)) + " times. \n"
+        string3 = "Highest energy: " + str(self.max_energy) + '\n'
+        string4 = "Average energy: " + str(self.average_energy) + '\n'
+        string5 = "Median energy: " + str(self.median_energy) + '\n'
+        string6 = "Standard deviation: " + str(self.stddev_energy) + '\n'
+        string7 = "Average time: " + str(self.average_time) + '\n'
+        string8 = "Standard Deviation for time: " + str(self.stddev_time) + '\n'
+        list_for_file = [string1, string2, string3, string4, string5, string6, string7, string8]
+        f.writelines(list_for_file)
+        f.close()
+
 class Test_Runs:
     def __init__(self, function_to_test, number_of_tests,states_mode,weights,bias, arguments, init_state = None):
         size = len(arguments)
