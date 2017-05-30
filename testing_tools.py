@@ -113,6 +113,7 @@ class Test_Run:
             plt.xlabel("Step number")
         plt.show()
 
+
     def print_test_results(self):
         print ("Number of Tests: ", self.number_of_tests)
         print ("Lowest energy: ", self.min_energy, " was achieved ", len(self.min_energy_indeces))
