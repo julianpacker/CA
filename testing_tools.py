@@ -33,10 +33,53 @@ def print_test_results(returned_list,  all_energies = 0, all_timings = 0, messag
     if all_timings:
         print ("All timings: ", calculated_energies[2])
     if messages:
-        print ("All messgaes: ", calculated_energies[3])
+        print ("All messages: ", calculated_energies[3])
     if repetitive != 0:
         graph_runs(repetitive, calculated_energies[4])
     print ()
+    return
+
+def save_test_results_to_file(returned_list,  all_energies = 0, all_timings = 0, messages = 0, repetitive = 0, file_name = "results.txt"):
+    f = open(file_name, 'w')
+    list_to_write = [returned_list[0][0], "\n", "Number of Tests: ", str(len(returned_list)), "\n"]
+    f.writelines(list_to_write)
+    calculated_energies = list(zip(*returned_list))
+
+    min_energy = min(calculated_energies[1])
+    min_energy_time = calculated_energies[2][calculated_energies[1].index(min_energy)]
+    lowest_string = "Lowest energy: " + min_energy + " took " + min_energy_time + '\n'
+
+    max_energy = max(calculated_energies[1])
+    max_energy_time = calculated_energies[2][calculated_energies[1].index(max_energy)]
+    highest_string = "Highest energy: " + max_energy + "took" + max_energy_time + '\n'
+
+
+
+    average_energy = mean(calculated_energies[1])
+    average_string = "Average energy: " + average_energy +'\n'
+    median_energy = median(calculated_energies[1])
+    median_string = "Median energy: " + median_energy +'\n'
+    list_to_write = [lowest_string, highest_string, average_string, median_string]
+    f.writelines(list_to_write)
+
+    try:
+        stddev = stdev(calculated_energies[1])
+        print("Standard deviation: ", stddev)
+    except:
+        print("Standard deviation is not available for single run!")
+    average_time = mean(calculated_energies[2])
+    print("Average time: ", average_time)
+    if all_energies:
+        print("All energies: ", calculated_energies[1])
+    if all_timings:
+        print("All timings: ", calculated_energies[2])
+    if messages:
+        print("All messages: ", calculated_energies[3])
+
+    f.close()
+    if repetitive != 0:
+        graph_runs(repetitive, calculated_energies[4])
+    print()
     return
 
 def graph_runs(code, runs):
