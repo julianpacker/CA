@@ -120,8 +120,35 @@ class Simulation_Noise(Simulation):
         # testing_level centered around 0 with some noise to allow hill climbing
         self.state_change(index, testing_level)
 
-#class Simulation_MergeNoise(Simulation):
-    
+class Simulation_MergeNoise(Simulation):
+    def __init__(self,states,weights,bias,counter,noise_level, branches, iterations):
+        self.branches = branches
+        #self.start = start
+        #self.stop = stop
+        self.iterations = iterations
+        self.noise_level = noise_level
+        super().__init__(states,weights,bias, counter)
+        self.NoiseSimulations = [None for i in range(self.branches)]    
+        return
+
+    def simulation_step(self):
+        self.c -= 1
+        for i in range(self.branches):
+            self.NoiseSimulations[i] = Simulation_Noise(self.states, self.weights, self.bias, self.iterations, self.noise_level)
+            self.NoiseSimulations[i].run_simulation()
+        self.find_new_state()        
+        return
+
+    def find_new_state(self):
+        a = list(map(sum, zip(*(self.NoiseSimulations[i].states for i in range(self.branches)))))
+        v = [0, 1]
+        w = [0,0]
+        for index, value in enumerate(a):
+            w[0] = self.branches - value
+            w[1] = value
+            self.states[index] = rnd.choices(v, weights = w)[0]
+        return
+
 
 class Simulation_1Update(Simulation):
     "Simulation using noise and 1-opt local updates to make decision if to change state"
