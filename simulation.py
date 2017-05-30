@@ -120,6 +120,8 @@ class Simulation_Noise(Simulation):
         # testing_level centered around 0 with some noise to allow hill climbing
         self.state_change(index, testing_level)
 
+#class Simulation_MergeNoise(Simulation):
+    
 
 class Simulation_1Update(Simulation):
     "Simulation using noise and 1-opt local updates to make decision if to change state"
