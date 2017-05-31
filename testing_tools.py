@@ -149,11 +149,8 @@ class Test_Runs:
         for  item in arguments:
             a = [item[0]]
             b = item[0]
-            step = float((item[1] - item[0]))/item[2]
-            if item[0] == item[1]:
-                args.append(a)
-                continue
-            for i in range(item[2]):
+            step = item[2] 
+            while b < item[1]:
                 b += step
                 a.append(b)
             args.append(a)
@@ -170,53 +167,26 @@ class Test_Runs:
                 break
         return
         
-
     def searchmode_lowest(self):
-        min_energy = inf 
-        min_energy_indeces = []
-        min_energy_count = []
-        for i, item in enumerate(self.instances):
-            value = item.min_energy
-            if min_energy > value:
-                min_energy = value
-                min_energy_indeces = [i]
-                min_energy_count = [item.min_energy_count]
-            elif min_energy == value:
-                min_energy_indeces.append(i)
-                min_energy_count.append(item.min_energy_count) 
-        print ("Minimum energy: ", min_energy, " was achieved ", len(min_energy_indeces), " times.")
-        for item1, item2 in zip(min_energy_count, min_energy_indeces):
-            print (item1, self.parameters[item2])
-                    
+        self.list_of_min = []
+        for item in self.instances:
+            self.list_of_min.append(item.min_energy)
+        self.list_of_min_indeces = [i for i in range(len(self.instances))]
+        self.list_of_min, self.list_of_min_indeces = zip(*sorted(zip(self.list_of_min, self.list_of_min_indeces)))
+        print("Minimum energy achieved was: ", self.list_of_min[0], " by: ", self.list_of_min_indeces[0])
 
     def searchmode_average(self):
-        min_energy = inf 
-        min_energy_indeces = []
-        for i, item in enumerate(self.instances):
-            value = item.average_energy
-            if min_energy > value:
-                min_energy = value
-                min_energy_indeces = [i]
-            elif min_energy == value:
-                min_energy_indeces.append(i) 
-        print ("Minimum average  energy: ", min_energy, " was achieved ", len(min_energy_indeces), " times.")
-        for item in min_energy_indeces:
-            print (self.parameters[item])
-
-
+        self.list_of_average= []
+        for item in self.instances:
+            self.list_of_average.append(item.average_energy)
+        self.list_of_average_indeces = [i for i in range(len(self.instances))]
+        self.list_of_average, self.list_of_min_average = zip(*sorted(zip(self.list_of_average, self.list_of_average_indeces)))
+        print("Minimum averagen energy achieved was: ", self.list_of_average[0], " by: ", self.list_of_average_indeces[0])
 
     def searchmode_median(self):
-        min_energy = inf 
-        min_energy_indeces = []
-        for i, item in enumerate(self.instances):
-            value = item.median_energy
-            if min_energy > value:
-                min_energy = value
-                min_energy_indeces = [i]
-            elif min_energy == value:
-                min_energy_indeces.append(i) 
-        print ("Minimum average  energy: ", min_energy, " was achieved ", len(min_energy_indeces), " times.")
-        for item in min_energy_indeces:
-            print (self.parameters[item])
-
-
+        self.list_of_median = []
+        for item in self.instances:
+            self.list_of_median.append(item.median_energy)
+        self.list_of_median_indeces = [i for i in range(len(self.instances))]
+        self.list_of_median, self.list_of_median_indeces = zip(*sorted(zip(self.list_of_median, self.list_of_median_indeces)))
+        print("Minimum energy achieved was: ", self.list_of_median[0], " by: ", self.list_of_median_indeces[0])

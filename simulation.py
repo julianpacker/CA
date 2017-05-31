@@ -120,23 +120,49 @@ class Simulation_Noise(Simulation):
         # testing_level centered around 0 with some noise to allow hill climbing
         self.state_change(index, testing_level)
 
+class Simulation_NoiseBasic(Simulation):
+    "Simulation using noise to make decisison if to change state"
+    def __init__(self, states, weights, bias, counter, noise_level):
+        self.noise_level = noise_level
+        super().__init__(states,weights,bias,counter)
+
+    def simulation_step(self):
+        self.c -= 1
+        index = rnd.randint(0, self.size)
+        testing_level = ((rnd.random() - 0.5)*1000 * self.noise_level) 
+        # testing_level centered around 0 with some noise to allow hill climbing
+        self.state_change(index, testing_level)
+
 class Simulation_MergeNoise(Simulation):
     def __init__(self,states,weights,bias,counter,noise_level, branches, iterations):
+        """ Run simulation Noise branches amount of time per step with counter = iterations/branches
+        after each set of runs merge the states to achieve a new state"""
         self.branches = branches
         #self.start = start
         #self.stop = stop
         self.iterations = iterations
+        self.noise = noise_level
         self.noise_level = noise_level
         super().__init__(states,weights,bias, counter)
         self.NoiseSimulations = [None for i in range(self.branches)]    
+        self.old_best_e = inf
+        self.old_best_state = []
+        self.iteration_per_branch = int((iterations/branches)/counter)
         return
 
     def simulation_step(self):
         self.c -= 1
         for i in range(self.branches):
-            self.NoiseSimulations[i] = Simulation_Noise(self.states, self.weights, self.bias, self.iterations, self.noise_level)
+            self.NoiseSimulations[i] = Simulation_NoiseBasic(self.states, self.weights, self.bias, self.iteration_per_branch, self.noise_level)
             self.NoiseSimulations[i].run_simulation()
-        self.find_new_state()        
+            self.noise_level = self.noise * (self.c/ self.counter)
+        self.find_new_state()
+        new_e = self.calculate_system_energy()
+        if new_e > self.old_best_e:
+            self.states = self.old_best_state
+        else:
+            self.old_best_e = new_e
+            self.old_best_state = self.states[:]
         return
 
     def find_new_state(self):
